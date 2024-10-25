@@ -44,7 +44,8 @@ app.post('/envelopes', (req, res) => {
     res.status(201).json({ message: 'Envelope created', envelope });
 });
 
-app.get('/envelopes/:id', (req, res) => {
+// Get endpoint to retrieve ALL envelopes
+app.get('/envelopes', (req, res) => {
     res.status(200).json({ totalBudget, envelopes });
 });
 
