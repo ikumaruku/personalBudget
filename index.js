@@ -1,5 +1,9 @@
+//Imports Express modules and assign it to variable 'express'
 const express = require('express');
+
+//Variable 'app' is calling express() function to init Express application
 const app = express();
+
 const PORT = 3000;
 
 // Global variables
@@ -34,6 +38,10 @@ app.post('/envelopes', (req, res) => {
     totalBudget -= amount; // Deduct the amount from total budget
 
     res.status(201).json({ message: 'Envelope created', envelope });
+});
+
+app.get('/envelopes', (req, res) => {
+    res.status(200).json({ totalBudget, envelopes });
 });
 
 // Start the server
