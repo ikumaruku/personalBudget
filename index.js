@@ -1,10 +1,13 @@
-//Imports Express modules and assign it to variable 'express'
+// Imports Express modules and assign it to variable 'express'
 const express = require('express');
 
-//Variable 'app' is calling express() function to init Express application
+// Variable 'app' is calling express() function to init Express application
 const app = express();
 
 const PORT = 3000;
+
+// To create unique IDs for each envelopes
+const { v4: uuidv4 } = require('uuid');
 
 // Global variables
 let totalBudget = 1000; // Example total budget
@@ -29,6 +32,7 @@ app.post('/envelopes', (req, res) => {
 
     // Create the envelope
     const envelope = {
+        id: uuidv4(), // Generate a unique ID for the envelope
         name,
         amount,
         remaining: amount // Set remaining to the amount initially
@@ -40,8 +44,20 @@ app.post('/envelopes', (req, res) => {
     res.status(201).json({ message: 'Envelope created', envelope });
 });
 
-app.get('/envelopes', (req, res) => {
+app.get('/envelopes/:id', (req, res) => {
     res.status(200).json({ totalBudget, envelopes });
+});
+
+// GET endpoint to retrieve a specific envelope by ID
+app.get('/envelopes/:id', (req, res) => {
+    const { id } = req.params; // Get the ID from the request parameters
+    const envelope = envelopes.find(env => env.id === id); // Find the envelope with the matching ID
+
+    if (!envelope) {
+        return res.status(404).json({ message: 'Envelope not found' });
+    }
+
+    res.status(200).json(envelope); // Return the found envelope
 });
 
 // Start the server
