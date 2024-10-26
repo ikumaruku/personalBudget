@@ -150,7 +150,7 @@ const deleteEnvelope = (req, res) => {
     res.status(200).json({ message: 'Envelope deleted' });
 };
 
-// Controller function to UPDATE a specific envelope by ID
+// Controller function to PUT a specific envelope by ID
 const updateEnvelope = (req, res) => {
     const { id } = req.params;
     const { name, amount } = req.body; // Get the updated name and amount from the request body

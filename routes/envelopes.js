@@ -14,7 +14,7 @@ router.get('/:id', envelopesController.getEnvelopeById);
 // DELETE endpoint to delete a specific envelope by ID
 router.delete('/:id', envelopesController.deleteEnvelope);
 
-// UPDATE endpoint to delete a specific envelope by ID
-router.update('/:id', envelopesController.updateEnvelope);
+// PUT endpoint to delete a specific envelope by ID
+router.put('/:id', envelopesController.updateEnvelope);
 
 module.exports = router;
