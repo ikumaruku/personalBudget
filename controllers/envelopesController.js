@@ -118,12 +118,12 @@ const createEnvelope = (req, res) => {
     res.status(201).json({ message: 'Envelope created', envelope });
 };
 
-// Controller function to retrieve all envelopes
+// Controller function to GET all envelopes
 const getAllEnvelopes = (req, res) => {
     res.status(200).json({ totalBudget, envelopes });
 };
 
-// Controller function to retrieve a specific envelope by ID
+// Controller function to GET a specific envelope by ID
 const getEnvelopeById = (req, res) => {
     const { id } = req.params;
     const envelope = envelopes.find(env => env.id === id);
@@ -135,7 +135,7 @@ const getEnvelopeById = (req, res) => {
     res.status(200).json(envelope);
 };
 
-// Controller function to delete a specific envelope by ID
+// Controller function to DELETE a specific envelope by ID
 const deleteEnvelope = (req, res) => {
     const { id } = req.params;
     const envelopeIndex = envelopes.findIndex(env => env.id === id);
@@ -150,12 +150,45 @@ const deleteEnvelope = (req, res) => {
     res.status(200).json({ message: 'Envelope deleted' });
 };
 
+// Controller function to UPDATE a specific envelope by ID
+const updateEnvelope = (req, res) => {
+    const { id } = req.params;
+    const { name, amount } = req.body; // Get the updated name and amount from the request body
+
+    // Find the envelope by its ID
+    const envelope = envelopes.find(env => env.id === id);
+
+    if (!envelope) {
+        return res.status(404).json({ message: 'Envelope not found' });
+    }
+
+    // Calculate the difference between the old and new amounts
+    const amountDifference = amount - envelope.amount;
+
+    // Check if the total budget can accommodate the new amount
+    if (amountDifference > totalBudget) {
+        return res.status(400).json({ message: 'Insufficient budget for this update' });
+    }
+
+    // Update envelope details
+    envelope.name = name || envelope.name; // Update name if provided, otherwise keep the current name
+    envelope.amount = amount; // Update the amount
+    envelope.remaining = amount; // Update the remaining amount as well
+
+    // Adjust the total budget based on the difference
+    totalBudget -= amountDifference;
+
+    // Respond with the updated envelope
+    res.status(200).json({ message: 'Envelope updated', envelope });
+};
+
 // Export controller functions
 module.exports = {
     createEnvelope,
     getAllEnvelopes,
     getEnvelopeById,
-    deleteEnvelope
+    deleteEnvelope,
+    updateEnvelope
 };
 
 
