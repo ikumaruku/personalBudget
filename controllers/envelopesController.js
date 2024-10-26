@@ -96,10 +96,14 @@ const createEnvelope = (req, res) => {
     const { name, amount } = req.body;
 
     // Validate request body
-    if (!name || !amount) {
-        return res.status(400).json({ message: 'Name and amount are required' });
+    if (!name) {
+        return res.status(400).json({ message: 'Name is required' });
     }
-
+    
+    if (!amount) {
+        return res.status(400).json({ message: 'Amount is required' });
+    }
+    
     if (amount > totalBudget) {
         return res.status(400).json({ message: 'Insufficient budget for this envelope' });
     }
@@ -182,13 +186,53 @@ const updateEnvelope = (req, res) => {
     res.status(200).json({ message: 'Envelope updated', envelope });
 };
 
+// Controller function to transfer amount between two envelopes
+const transferAmount = (req, res) => {
+    const { fromId, toId } = req.params; // Extract source and target envelope IDs from route parameters
+    const { amount } = req.body; // Get transfer amount from request body
+
+    // Validate that amount is a positive number
+    if (amount <= 0) {
+        return res.status(400).json({ message: 'Transfer amount must be greater than zero' });
+    }
+
+    // Find the source and target envelopes by their IDs
+    const sourceEnvelope = envelopes.find(env => env.id === fromId);
+    const targetEnvelope = envelopes.find(env => env.id === toId);
+
+    // Check if both envelopes exist
+    if (!sourceEnvelope) {
+        return res.status(404).json({ message: 'Source envelope not found' });
+    }
+    if (!targetEnvelope) {
+        return res.status(404).json({ message: 'Target envelope not found' });
+    }
+
+    // Check if source envelope has enough funds
+    if (sourceEnvelope.remaining < amount) {
+        return res.status(400).json({ message: 'Insufficient funds in source envelope' });
+    }
+
+    // Perform the transfer
+    sourceEnvelope.remaining -= amount; // Deduct amount from source envelope
+    targetEnvelope.remaining += amount; // Add amount to target envelope
+
+    // Respond with updated envelopes
+    res.status(200).json({
+        message: 'Amount transferred successfully',
+        sourceEnvelope,
+        targetEnvelope
+    });
+};
+
 // Export controller functions
 module.exports = {
     createEnvelope,
     getAllEnvelopes,
     getEnvelopeById,
     deleteEnvelope,
-    updateEnvelope
+    updateEnvelope,
+    transferAmount
 };
 
 

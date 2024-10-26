@@ -17,4 +17,7 @@ router.delete('/:id', envelopesController.deleteEnvelope);
 // PUT endpoint to delete a specific envelope by ID
 router.put('/:id', envelopesController.updateEnvelope);
 
+// POST endpoint to transfer values from one envelope to another
+router.post('/transfer/:fromId/:toId', envelopesController.transferAmount);
+
 module.exports = router;
