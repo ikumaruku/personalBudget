@@ -25,9 +25,9 @@ const createEnvelope = (req, res) => {
     // Create the envelope
     const envelope = {
         id: uuidv4(),
-        name,
-        amount,
-        remaining: amount,
+        name: String(name),
+        amount: Number(amount),
+        remaining: Number(amount),
     };
 
     envelopes.push(envelope);
@@ -62,7 +62,8 @@ const deleteEnvelope = (req, res) => {
         return res.status(404).json({ message: 'Envelope not found' });
     }
 
-    totalBudget += envelopes[envelopeIndex].amount;
+    totalBudget += envelopes[envelopeIndex].remaining;
+
     envelopes.splice(envelopeIndex, 1);
 
     res.status(200).json({ message: 'Envelope deleted' });
@@ -72,6 +73,11 @@ const deleteEnvelope = (req, res) => {
 const updateEnvelope = (req, res) => {
     const { id } = req.params;
     const { name, amount } = req.body; // Get the updated name and amount from the request body
+
+    // Validate is amount is a Number
+    if (isNaN(amount)) {
+        return res.status(400).json({ message: 'Amount must be a valid number' });
+    }
 
     // Find the envelope by its ID
     const envelope = envelopes.find(env => env.id === id);
