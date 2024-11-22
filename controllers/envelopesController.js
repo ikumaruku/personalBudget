@@ -1,3 +1,6 @@
+// Import the PostgreSQL connection
+const pool = require('../db');
+
 // Import the UUID package for unique IDs
 const { v4: uuidv4 } = require('uuid');
 
@@ -6,8 +9,11 @@ let totalBudget = 1000;
 let envelopes = [];
 
 // Controller function to create a budget envelope
-const createEnvelope = (req, res) => {
+const createEnvelope = async (req, res) => {
     const { name, amount } = req.body;
+    
+    // Generate a unique UUID for the envelope
+    const id = uuidv4();
 
     // Validate request body
     if (!name) {
@@ -22,6 +28,20 @@ const createEnvelope = (req, res) => {
         return res.status(400).json({ message: 'Insufficient budget for this envelope' });
     }
 
+    try {
+        // Insert envelope into PostgreSQL database
+        const query = 'INSERT INTO envelopes (id, name, amount, remaining) VALUES ($1, $2, $3, $4)';
+        await pool.query(query, [id, name, amount, amount]);
+
+        // Adjust the total budget
+        totalBudget -= amount;
+
+        res.status(201).json({ message: 'Envelope created', envelope: { id, name, amount, remaining: amount } });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error creating envelope' });
+    }
+/*
     // Create the envelope
     const envelope = {
         id: uuidv4(),
@@ -34,11 +54,19 @@ const createEnvelope = (req, res) => {
     totalBudget -= amount;
 
     res.status(201).json({ message: 'Envelope created', envelope });
+    */
 };
 
 // Controller function to GET all envelopes
-const getAllEnvelopes = (req, res) => {
-    res.status(200).json({ totalBudget, envelopes });
+const getAllEnvelopes = async (req, res) => {
+   // res.status(200).json({ totalBudget, envelopes });
+    try {
+        const result = await pool.query('SELECT * FROM envelopes');
+        res.status(200).json({ totalBudget, envelopes: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving envelopes' });
+    }
 };
 
 // Controller function to GET a specific envelope by ID
